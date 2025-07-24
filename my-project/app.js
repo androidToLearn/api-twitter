@@ -18,14 +18,14 @@ app.get('/', (req, res) => {
     res.send('שלום מהשרת!');
 });
 
-app.get('', (req, res) => {
+app.get('/twitter/callback', (req, res) => {
     const { oauth_token, oauth_verifier } = req.query;
     console.log('Twitter החזיר אותנו עם:', oauth_token, oauth_verifier);
     res.send('קיבלנו Callback מטוויטר!');
 });
 
 app.listen(PORT, () => {
-    console.log(`השרת פועל בכתובת https://api-twitter-07e3.onrender.com:${PORT}`);
+    console.log(`השרת פועל בכתובת https://api-twitter-7.onrender.com/:${PORT}`);
 });
 
 
@@ -47,7 +47,7 @@ const request_data = {
     url: 'https://api.twitter.com/oauth/request_token',
     method: 'POST',
     data: {
-        oauth_callback: 'https://api-twitter-07e3.onrender.com/twitter/callback/twitter/callback'  // כי האפליקציה Desktop
+        oauth_callback: 'https://api-twitter-7.onrender.com/twitter/callback'  // כי האפליקציה Desktop
     }
 };
 
