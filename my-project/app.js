@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
     res.send('שלום מהשרת!');
 });
 
-app.get('/twitter/callback', (req, res) => {
+app.get('', (req, res) => {
     const { oauth_token, oauth_verifier } = req.query;
     console.log('Twitter החזיר אותנו עם:', oauth_token, oauth_verifier);
     res.send('קיבלנו Callback מטוויטר!');
