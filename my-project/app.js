@@ -71,6 +71,9 @@ app.post('/send-text', (req, res) => {
 
 
 
+
+    }).then(data => {
+        res.redirect(`https://api.twitter.com/oauth/authorize?oauth_token=${oauth_token}`);
         console.log('wait to callback....')
 
     })
@@ -140,7 +143,7 @@ function tweetToTwitter(statusText, oath_token, oauth_token_secret, res) {
     const request_data = {
         url: 'https://api.twitter.com/1.1/statuses/update.json',
         method: 'POST',
-        data: { status: 'Hello world!' },
+        data: { status: statusText }
     };
 
     const token = {
@@ -163,7 +166,7 @@ function tweetToTwitter(statusText, oath_token, oauth_token_secret, res) {
     // מקודדים את הטקסט לצורך שימוש בגוף הבקשה (כמו HTML form)
     const body = querystring.stringify({ status: statusText });
 
-    fetch("https://api.x.com/1.1/statuses/update.json?include_entities=true", {
+    fetch("https://api.twitter.com/1.1/statuses/update.json", {
         method: "POST",
         headers: {
             "Authorization": oauthHeader,
