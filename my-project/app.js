@@ -10,6 +10,8 @@ const axios = require('axios');
 
 const { text } = require('stream/consumers');
 const { stat } = require('fs');
+let div = document.getElementById('myp')
+let p = null;
 
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -21,11 +23,17 @@ app.get('/', (req, res) => {
 app.get('/twitter/callback', (req, res) => {
     const { oauth_token, oauth_verifier } = req.query;
     console.log('Twitter החזיר אותנו עם:', oauth_token, oauth_verifier);
+    p = document.createElement('p');
+    p.innerText = 'Twitter החזיר אותנו עם:', oauth_token, oauth_verifier
+    div.appendChild(p)
     res.send('קיבלנו Callback מטוויטר!');
 });
 
 app.listen(PORT, () => {
     console.log(`השרת פועל בכתובת https://api-twitter-7.onrender.com/:${PORT}`);
+    p = document.createElement('p');
+    p.innerText = `השרת פועל בכתובת https://api-twitter-7.onrender.com/:${PORT}`
+    div.appendChild(p)
 });
 
 
@@ -57,17 +65,33 @@ const headers = oauth.toHeader(oauth.authorize(request_data));
 
 
 console.log('send to authentication...')
+p = document.createElement('p');
+p.innerText = 'send to authentication...'
+div.appendChild(p)
 axios.post(request_data.url, null, { headers })
     .then(response => {
         console.log('request_token response:', response.data);
+        p = document.createElement('p');
+        p.innerText = 'request_token response:' + response.data
+        div.appendChild(p)
         const responseParams = querystring.parse(response.data);
 
         const oauth_token = responseParams.oauth_token;
         const oauth_token_secret = responseParams.oauth_token_secret;
         console.log(oauth_token)
         console.log(oauth_token_secret)
+        p = document.createElement('p');
+        p.innerText = oauth_token
+        div.appendChild(p)
+
+        p = document.createElement('p');
+        p.innerText = oauth_token_secret
+        div.appendChild(p)
 
         console.log('send to twitter...')
+        p = document.createElement('p');
+        p.innerText = 'send to twitter...'
+        div.appendChild(p)
 
         // מפה תוכל לחלץ את oauth_token ולהפנות את המשתמש
         tweetToTwitter("hello there! this is post from api node.js programming", oauth_token, oauth_token_secret);
@@ -75,12 +99,12 @@ axios.post(request_data.url, null, { headers })
     })
     .catch(error => {
         console.error('שגיאה בקבלת request_token:', error.response?.data || error.message);
+        p = document.createElement('p');
+        p.innerText = 'שגיאה בקבלת request_token:', error.response?.data || error.message
+        div.appendChild(p)
     });
 
 function tweetToTwitter(statusText, oath_token, oauth_token_secret) {
-    const oauth_timestamp = Math.floor(Date.now() / 1000);
-    const oauth_nonce = generateNonce();
-    const api_key = 'NBQW7Sxz22RhofCr5FcvzwXw3'
 
 
     const request_data = {
@@ -96,6 +120,9 @@ function tweetToTwitter(statusText, oath_token, oauth_token_secret) {
 
     const oauthData = oauth.authorize(request_data, token);
     console.log(oauthData)
+    p = document.createElement('p');
+    p.innerText = oauthData
+    div.appendChild(p)
     const oauthHeader = `OAuth ` +
         `oauth_consumer_key="${encodeURIComponent(oauthData.oauth_consumer_key)}", ` +
         `oauth_token="${encodeURIComponent(oauthData.oauth_token)}", ` +
@@ -127,18 +154,16 @@ function tweetToTwitter(statusText, oath_token, oauth_token_secret) {
         })
         .then(data => {
             console.log("Tweet sent:", data);
+            p = document.createElement('p');
+            p.innerText = "Tweet sent:" + data
+            div.appendChild(p)
         })
         .catch(error => {
             console.error("Error tweeting:", error);
+            p = document.createElement('p');
+            p.innerText = "Error tweeting:" + error
+            div.appendChild(p)
         });
 
 
-}
-
-// קריאה לדוגמה:
-function getOAuthSignature(baseString, signingKey) {
-    const shaObj = new jsSHA("SHA-1", "TEXT");
-    shaObj.setHMACKey(signingKey, "TEXT");
-    shaObj.update(baseString);
-    return shaObj.getHMAC("B64");
 }
