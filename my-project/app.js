@@ -28,8 +28,38 @@ app.get('/', (req, res) => {
 
 app.get('/twitter/callback', (req, res) => {
     const { oauth_token, oauth_verifier } = req.query;
-    console.log('Twitter החזיר אותנו עם:', oauth_token, oauth_verifier);
 
+    const accessTokenRequestData = {
+        url: 'https://api.twitter.com/oauth/access_token',
+        method: 'POST',
+        data: {
+            oauth_verifier
+        }
+    };
+
+    const token = { key: oauth_token, secret: oauth_tokenSecretMap[oauth_token] }; // חשוב! לשמור את הסוד לפי token
+
+    const headers = oauth.toHeader(oauth.authorize(accessTokenRequestData, token));
+    headers['Content-Type'] = 'application/x-www-form-urlencoded';
+
+    axios.post(accessTokenRequestData.url, null, { headers })
+        .then(response => {
+            const responseParams = querystring.parse(response.data);
+            const accessToken = responseParams.oauth_token;
+            const accessTokenSecret = responseParams.oauth_token_secret;
+
+            console.log('Access Token:', accessToken);
+            console.log('Access Token Secret:', accessTokenSecret);
+
+            // עכשיו אפשר לצייץ
+            tweetToTwitter("hello there! this is post from api node.js programming", accessToken, accessTokenSecret);
+
+            res.send('התחברת לטוויטר והציוץ בדרך!');
+        })
+        .catch(error => {
+            console.error('שגיאה בקבלת access_token:', error.response?.data || error.message);
+            res.status(500).send('שגיאה בקבלת access_token');
+        });
 });
 
 app.listen(PORT, () => {
@@ -78,10 +108,7 @@ axios.post(request_data.url, null, { headers }).then(response => {
 
 
 
-    console.log('send to twitter...')
-
-
-    tweetToTwitter("hello there! this is post from api node.js programming", oauth_token, oauth_token_secret);
+    console.log('wait to callback....')
 
 })
     .catch(error => {
