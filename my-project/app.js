@@ -10,11 +10,15 @@ const axios = require('axios');
 
 const { text } = require('stream/consumers');
 const { stat } = require('fs');
-let div = document.getElementById('myp')
-let p = null;
+let myText = ''
+app.use(express.static('public')); // כאן נשמור את הקבצים ללקוח
 
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+app.get('/getText', (req, res) => {
+    res.json({ 'text': myText })
+})
 
 app.get('/', (req, res) => {
     res.send('שלום מהשרת!');
@@ -23,17 +27,13 @@ app.get('/', (req, res) => {
 app.get('/twitter/callback', (req, res) => {
     const { oauth_token, oauth_verifier } = req.query;
     console.log('Twitter החזיר אותנו עם:', oauth_token, oauth_verifier);
-    p = document.createElement('p');
-    p.innerText = 'Twitter החזיר אותנו עם:', oauth_token, oauth_verifier
-    div.appendChild(p)
+    myText = 'Twitter החזיר אותנו עם:', oauth_token, oauth_verifier
     res.send('קיבלנו Callback מטוויטר!');
 });
 
 app.listen(PORT, () => {
     console.log(`השרת פועל בכתובת https://api-twitter-7.onrender.com/:${PORT}`);
-    p = document.createElement('p');
-    p.innerText = `השרת פועל בכתובת https://api-twitter-7.onrender.com/:${PORT}`
-    div.appendChild(p)
+    myText = `השרת פועל בכתובת https://api-twitter-7.onrender.com/:${PORT}`
 });
 
 
@@ -65,33 +65,22 @@ const headers = oauth.toHeader(oauth.authorize(request_data));
 
 
 console.log('send to authentication...')
-p = document.createElement('p');
-p.innerText = 'send to authentication...'
-div.appendChild(p)
+myText = 'send to authentication...'
 axios.post(request_data.url, null, { headers })
     .then(response => {
         console.log('request_token response:', response.data);
-        p = document.createElement('p');
-        p.innerText = 'request_token response:' + response.data
-        div.appendChild(p)
+        myText = 'request_token response:', response.data
         const responseParams = querystring.parse(response.data);
 
         const oauth_token = responseParams.oauth_token;
         const oauth_token_secret = responseParams.oauth_token_secret;
         console.log(oauth_token)
         console.log(oauth_token_secret)
-        p = document.createElement('p');
-        p.innerText = oauth_token
-        div.appendChild(p)
-
-        p = document.createElement('p');
-        p.innerText = oauth_token_secret
-        div.appendChild(p)
+        myText = oauth_token
+        myText = oauth_token_secret
 
         console.log('send to twitter...')
-        p = document.createElement('p');
-        p.innerText = 'send to twitter...'
-        div.appendChild(p)
+        myText = 'send to twitter...'
 
         // מפה תוכל לחלץ את oauth_token ולהפנות את המשתמש
         tweetToTwitter("hello there! this is post from api node.js programming", oauth_token, oauth_token_secret);
@@ -99,9 +88,7 @@ axios.post(request_data.url, null, { headers })
     })
     .catch(error => {
         console.error('שגיאה בקבלת request_token:', error.response?.data || error.message);
-        p = document.createElement('p');
-        p.innerText = 'שגיאה בקבלת request_token:', error.response?.data || error.message
-        div.appendChild(p)
+        myText = 'שגיאה בקבלת request_token:', error.response?.data || error.message
     });
 
 function tweetToTwitter(statusText, oath_token, oauth_token_secret) {
@@ -120,9 +107,7 @@ function tweetToTwitter(statusText, oath_token, oauth_token_secret) {
 
     const oauthData = oauth.authorize(request_data, token);
     console.log(oauthData)
-    p = document.createElement('p');
-    p.innerText = oauthData
-    div.appendChild(p)
+    myText = oauthData
     const oauthHeader = `OAuth ` +
         `oauth_consumer_key="${encodeURIComponent(oauthData.oauth_consumer_key)}", ` +
         `oauth_token="${encodeURIComponent(oauthData.oauth_token)}", ` +
@@ -154,15 +139,11 @@ function tweetToTwitter(statusText, oath_token, oauth_token_secret) {
         })
         .then(data => {
             console.log("Tweet sent:", data);
-            p = document.createElement('p');
-            p.innerText = "Tweet sent:" + data
-            div.appendChild(p)
+            myText = "Tweet sent:" + data
         })
         .catch(error => {
             console.error("Error tweeting:", error);
-            p = document.createElement('p');
-            p.innerText = "Error tweeting:" + error
-            div.appendChild(p)
+            myText = "Error tweeting:" + error
         });
 
 
