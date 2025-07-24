@@ -9,12 +9,14 @@ const crypto = require('crypto');
 const axios = require('axios');
 const path = require('path');
 let rv1 = ''
+let token_Secret = ''
 
 
 const { text } = require('stream/consumers');
 const { stat } = require('fs');
 // app.use(express.static('public')); // כאן נשמור את הקבצים ללקוח
 const { Server } = require('socket.io');
+let oauth = null;
 
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -32,7 +34,7 @@ app.post('/send-text', (req, res) => {
     const consumerKey = 'NBQW7Sxz22RhofCr5FcvzwXw3';
     const consumerSecret = 'jHyUhYKoZ6sbECwpHqcAvmMhX8IMknsedhBBHZEXrl9eCEJ7yz';
 
-    const oauth = OAuth({
+    oauth = OAuth({
         consumer: { key: consumerKey, secret: consumerSecret },
         signature_method: 'HMAC-SHA1',
         hash_function(base_string, key) {
@@ -65,6 +67,7 @@ app.post('/send-text', (req, res) => {
         const oauth_token_secret = responseParams.oauth_token_secret;
         console.log(oauth_token)
         console.log(oauth_token_secret)
+        token_Secret = oauth_token_secret;
 
 
 
@@ -84,10 +87,7 @@ app.get('/', (req, res) => {
 });
 
 
-
-app.get('/twitter/callback', (req, res) => {
-    const { oauth_token, oauth_verifier } = req.query;
-
+function accessToken(oauth_token, secret, res) {
     const accessTokenRequestData = {
         url: 'https://api.twitter.com/oauth/access_token',
         method: 'POST',
@@ -96,7 +96,7 @@ app.get('/twitter/callback', (req, res) => {
         }
     };
 
-    const token = { key: oauth_token, secret: oauth_tokenSecretMap[oauth_token] }; // חשוב! לשמור את הסוד לפי token
+    const token = { key: oauth_token, secret: secret }; // חשוב! לשמור את הסוד לפי token
 
     const headers = oauth.toHeader(oauth.authorize(accessTokenRequestData, token));
     headers['Content-Type'] = 'application/x-www-form-urlencoded';
@@ -119,6 +119,12 @@ app.get('/twitter/callback', (req, res) => {
             console.error('שגיאה בקבלת access_token:', error.response?.data || error.message);
             res.status(500).send('שגיאה בקבלת access_token');
         });
+}
+
+
+app.get('/twitter/callback', (req, res) => {
+    const { oauth_token, oauth_verifier } = req.query;
+    accessToken(oauth_token, token_Secret, res)
 });
 
 app.listen(PORT, () => {
