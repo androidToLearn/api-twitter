@@ -1,6 +1,6 @@
 const textToSend = "hello there! this is post from api node.js programming";
 console.log('send')
-fetch('http://localhost:3000/send-text', {
+fetch('https://api-twitter-7.onrender.com/send-text', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'
@@ -9,5 +9,5 @@ fetch('http://localhost:3000/send-text', {
 })
     .then(response => response.text())
     .then(data => {
-        console.log('תגובה מהשרת:', data);
+        alert('post sended')
     });

@@ -111,7 +111,7 @@ app.get('/twitter/callback', (req, res) => {
             console.log('Access Token Secret:', accessTokenSecret);
 
             // עכשיו אפשר לצייץ
-            tweetToTwitter(rv1, accessToken, accessTokenSecret);
+            tweetToTwitter(rv1, accessToken, accessTokenSecret, res);
 
             res.send('התחברת לטוויטר והציוץ בדרך!');
         })
@@ -128,7 +128,7 @@ app.listen(PORT, () => {
 
 
 
-function tweetToTwitter(statusText, oath_token, oauth_token_secret) {
+function tweetToTwitter(statusText, oath_token, oauth_token_secret, res) {
 
 
     const request_data = {
@@ -175,7 +175,7 @@ function tweetToTwitter(statusText, oath_token, oauth_token_secret) {
         })
         .then(data => {
             console.log("Tweet sent:", data);
-
+            res.json({ 'text': 'ok' })
 
         })
         .catch(error => {
