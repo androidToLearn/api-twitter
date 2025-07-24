@@ -7,7 +7,8 @@ const querystring = require('querystring');
 const OAuth = require('oauth-1.0a');
 const crypto = require('crypto');
 const axios = require('axios');
-const http = require('http');
+const path = require('path');
+let rv1 = ''
 
 
 const { text } = require('stream/consumers');
@@ -17,11 +18,69 @@ const { Server } = require('socket.io');
 
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+app.use(express.static('public'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 
+app.post('/send-text', (req, res) => {
+    const receivedText = req.body.text;   // פה אנחנו לוקחים את הטקסט מהגוף של הבקשה
+    console.log('קיבלנו טקסט:', receivedText);
+    rv1 = receivedText;
+
+    // הגדר את המפתחות שלך
+    const consumerKey = 'NBQW7Sxz22RhofCr5FcvzwXw3';
+    const consumerSecret = 'jHyUhYKoZ6sbECwpHqcAvmMhX8IMknsedhBBHZEXrl9eCEJ7yz';
+
+    const oauth = OAuth({
+        consumer: { key: consumerKey, secret: consumerSecret },
+        signature_method: 'HMAC-SHA1',
+        hash_function(base_string, key) {
+            return crypto.createHmac('sha1', key).update(base_string).digest('base64');
+        },
+    });
+
+
+    const request_data = {
+        url: 'https://api.twitter.com/oauth/request_token',
+        method: 'POST',
+        data: {
+            oauth_callback: 'https://api-twitter-7.onrender.com/twitter/callback'  // כי האפליקציה Desktop
+        }
+    };
+
+
+    const headers = oauth.toHeader(oauth.authorize(request_data));
+    headers['Content-Type'] = 'application/x-www-form-urlencoded';
+
+
+    console.log('send to authentication...')
+
+
+    axios.post(request_data.url, null, { headers }).then(response => {
+        console.log('request_token response:', response.data);
+        const responseParams = querystring.parse(response.data);
+
+        const oauth_token = responseParams.oauth_token;
+        const oauth_token_secret = responseParams.oauth_token_secret;
+        console.log(oauth_token)
+        console.log(oauth_token_secret)
+
+
+
+        console.log('wait to callback....')
+
+    })
+        .catch(error => {
+            console.error('שגיאה בקבלת request_token:', error.response?.data || error.message);
+
+
+        });// מדפיסים למסוף של השרת את הטקסט שהתקבל
+
+});
 
 app.get('/', (req, res) => {
-    res.send('שלום מהשרת!');
+    res.sendFile(path.join(__dirname, 'public', 'page1.html'))
 });
 
 
@@ -52,7 +111,7 @@ app.get('/twitter/callback', (req, res) => {
             console.log('Access Token Secret:', accessTokenSecret);
 
             // עכשיו אפשר לצייץ
-            tweetToTwitter("hello there! this is post from api node.js programming", accessToken, accessTokenSecret);
+            tweetToTwitter(rv1, accessToken, accessTokenSecret);
 
             res.send('התחברת לטוויטר והציוץ בדרך!');
         })
@@ -68,54 +127,6 @@ app.listen(PORT, () => {
 
 
 
-// הגדר את המפתחות שלך
-const consumerKey = 'NBQW7Sxz22RhofCr5FcvzwXw3';
-const consumerSecret = 'jHyUhYKoZ6sbECwpHqcAvmMhX8IMknsedhBBHZEXrl9eCEJ7yz';
-
-const oauth = OAuth({
-    consumer: { key: consumerKey, secret: consumerSecret },
-    signature_method: 'HMAC-SHA1',
-    hash_function(base_string, key) {
-        return crypto.createHmac('sha1', key).update(base_string).digest('base64');
-    },
-});
-
-
-const request_data = {
-    url: 'https://api.twitter.com/oauth/request_token',
-    method: 'POST',
-    data: {
-        oauth_callback: 'https://api-twitter-7.onrender.com/twitter/callback'  // כי האפליקציה Desktop
-    }
-};
-
-
-const headers = oauth.toHeader(oauth.authorize(request_data));
-headers['Content-Type'] = 'application/x-www-form-urlencoded';
-
-
-console.log('send to authentication...')
-
-
-axios.post(request_data.url, null, { headers }).then(response => {
-    console.log('request_token response:', response.data);
-    const responseParams = querystring.parse(response.data);
-
-    const oauth_token = responseParams.oauth_token;
-    const oauth_token_secret = responseParams.oauth_token_secret;
-    console.log(oauth_token)
-    console.log(oauth_token_secret)
-
-
-
-    console.log('wait to callback....')
-
-})
-    .catch(error => {
-        console.error('שגיאה בקבלת request_token:', error.response?.data || error.message);
-
-
-    });
 
 function tweetToTwitter(statusText, oath_token, oauth_token_secret) {
 
