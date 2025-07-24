@@ -25,9 +25,9 @@ app.get('/twitter/callback', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`השרת פועל בכתובת http://localhost:${PORT}`);
+    console.log(`השרת פועל בכתובת https://api-twitter-07e3.onrender.com:${PORT}`);
 });
-/*
+
 
 
 // הגדר את המפתחות שלך
@@ -47,7 +47,7 @@ const request_data = {
     url: 'https://api.twitter.com/oauth/request_token',
     method: 'POST',
     data: {
-        oauth_callback: 'http://localhost:3000/twitter/callback/twitter/callback'  // כי האפליקציה Desktop
+        oauth_callback: 'https://api-twitter-07e3.onrender.com/twitter/callback/twitter/callback'  // כי האפליקציה Desktop
     }
 };
 
@@ -141,4 +141,4 @@ function getOAuthSignature(baseString, signingKey) {
     shaObj.setHMACKey(signingKey, "TEXT");
     shaObj.update(baseString);
     return shaObj.getHMAC("B64");
-}*/
+}
