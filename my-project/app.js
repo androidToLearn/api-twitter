@@ -87,7 +87,8 @@ app.get('/', (req, res) => {
 });
 
 
-function accessToken(oauth_token, secret, res) {
+function accessToken(oauth_token, secret, oauth_verifier, res) {
+    console.log('in callback...')
     const accessTokenRequestData = {
         url: 'https://api.twitter.com/oauth/access_token',
         method: 'POST',
@@ -108,12 +109,11 @@ function accessToken(oauth_token, secret, res) {
             const accessTokenSecret = responseParams.oauth_token_secret;
 
             console.log('Access Token:', accessToken);
-            console.log('Access Token Secret:', accessTokenSecret);
+            console.log('send post...');
 
             // עכשיו אפשר לצייץ
             tweetToTwitter(rv1, accessToken, accessTokenSecret, res);
 
-            res.send('התחברת לטוויטר והציוץ בדרך!');
         })
         .catch(error => {
             console.error('שגיאה בקבלת access_token:', error.response?.data || error.message);
@@ -124,7 +124,7 @@ function accessToken(oauth_token, secret, res) {
 
 app.get('/twitter/callback', (req, res) => {
     const { oauth_token, oauth_verifier } = req.query;
-    accessToken(oauth_token, token_Secret, res)
+    accessToken(oauth_token, token_Secret, oauth_verifier, res)
 });
 
 app.listen(PORT, () => {
