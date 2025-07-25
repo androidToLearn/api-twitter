@@ -68,11 +68,6 @@ app.post('/send-text', (req, res) => {
         console.log(oauth_token)
         console.log(oauth_token_secret)
         token_Secret = oauth_token_secret;
-
-
-
-
-    }).then(data => {
         res.redirect(`https://api.twitter.com/oauth/authorize?oauth_token=${oauth_token}`);
         console.log('wait to callback....')
 
