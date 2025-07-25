@@ -9,5 +9,7 @@ fetch('https://api-twitter-7.onrender.com/send-text', {
 })
     .then(response => response.text())
     .then(data => {
-        alert('post sended')
+        if (data.redirectUrl) {
+            window.location.href = data.redirectUrl;  // מפנה את המשתמש ל־Twitter
+        }
     });

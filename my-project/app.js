@@ -68,14 +68,13 @@ app.post('/send-text', (req, res) => {
         console.log(oauth_token)
         console.log(oauth_token_secret)
         token_Secret = oauth_token_secret;
-        res.redirect(`https://api.twitter.com/oauth/authorize?oauth_token=${oauth_token}`);
+
         console.log('wait to callback....')
+        res.json({ redirectUrl: `https://api.twitter.com/oauth/authorize?oauth_token=${oauth_token}` });
 
     })
         .catch(error => {
             console.error('שגיאה בקבלת request_token:', error.response?.data || error.message);
-
-
         });// מדפיסים למסוף של השרת את הטקסט שהתקבל
 
 });
@@ -123,6 +122,7 @@ function accessToken(oauth_token, secret, oauth_verifier, res) {
 app.get('/twitter/callback', (req, res) => {
     const { oauth_token, oauth_verifier } = req.query;
     accessToken(oauth_token, token_Secret, oauth_verifier, res)
+    console.log('post sended')
 });
 
 app.listen(PORT, () => {
